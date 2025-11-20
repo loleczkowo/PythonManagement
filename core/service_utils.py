@@ -4,7 +4,7 @@ import threading
 from pathlib import Path
 from globals import Globals as G
 from service import Service
-from .logs import service_log, log, ERROR, WARNING, QINFO
+from .logs import service_log, log, ERROR, WARNING, QINFO, INFO
 
 
 def reader(pipe, service: Service):
@@ -68,6 +68,7 @@ def run_service(service: Service):
             log(ERROR, f"{file_path} from {service.name} does not exist")
             G.service_status[service.name].status = False
             return False
+    log(INFO, f"running {service.name}")
     t = threading.Thread(
         target=run_script, args=(
             service, service.venv.python_exe(), service.cwd,
@@ -82,7 +83,7 @@ def stop_service(service: Service):
     status = G.service_status[service.name].status
     if not isinstance(status, subprocess.Popen):
         return False
-    log(QINFO, f"shutting down {service.name}")
+    log(INFO, f"shutting down {service.name}")
     status.terminate()
     return True
 
