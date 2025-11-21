@@ -1,3 +1,10 @@
+# NOTE
+**This is mostly a private project. Therefore many configs were set to me  
+You can edit this as much as you want.**  
+This project is a "python service manager", It auto generates needed venv's and starts apps.  
+It also host a small interface *(if you know how to use js or html please clean up the shitty AI code)*  
+Almost all of this code is written by hand. AI was **ONLY** used for everything in `ui/`, elsewere it was only used as a reshearch tool.
+
 ## ADD NEW SERVICE:
 1. add a new file to `services/`
 2. in the file define the `VenvSpec` and `Service`
