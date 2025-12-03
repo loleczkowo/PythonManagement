@@ -1,3 +1,5 @@
+> This README needs remaking
+
 # NOTE
 **This is mostly a private project. Therefore many configs were set to me  
 You can edit this as much as you want.**  
@@ -18,7 +20,7 @@ Almost all of this code is written by hand. AI was **ONLY** used for everything 
 - api port `52481`
 - web ui path is `Appdir/ui/`
 ## how to use
-Use `start_python_managment.bat` to run the program.  
+Use `start_python_managment.bat`/`start.sh` to run the program.  
 When venvs break use `delete_all_venvs.bat` to reinstall all venvs
 
 ### API Endpoints

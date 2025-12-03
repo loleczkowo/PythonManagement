@@ -1,1 +1,3 @@
 __pycache__/
+services/*
+!services/registry.py
