@@ -34,7 +34,9 @@ def run_script(
         env.update(env_varibles)
 
     service_log(service, "--- SERVICE AUTO STARTUP MESSAGE ---")
-    NO_WINDOW = 0x08000000
+    flags = {}
+    if os.name == "nt":
+        flags["creationflags"] = 0x08000000  # NO WINDOW
     proc = subprocess.Popen(
         cmd,
         cwd=str(project_path),
@@ -44,7 +46,7 @@ def run_script(
         stderr=subprocess.PIPE,
         bufsize=0,
         close_fds=True,
-        creationflags=NO_WINDOW
+        **flags
     )
     threading.Thread(
         target=reader,
