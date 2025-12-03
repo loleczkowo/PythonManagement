@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Union
@@ -27,7 +28,9 @@ class VenvSpec:
 
     def python_exe(self) -> Path:
         vdir = self.resolve_dir()
-        return vdir / "Scripts" / "python.exe"
+        if os.name == "nt":
+            return vdir / "Scripts" / "python.exe"
+        return vdir / "bin" / "python"
 
 
 @dataclass(frozen=True)
