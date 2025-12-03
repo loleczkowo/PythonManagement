@@ -1,9 +1,8 @@
 from pathlib import Path
-import os
+from core.utils import get_app_data_dir
 
 DIR = Path(__file__).parent
-local = os.environ["LOCALAPPDATA"] or str(Path.home() / "AppData" / "Local")
-APP_DATA_DIR = Path(local) / "PythonManagement"
+APP_DATA_DIR = get_app_data_dir() / "PythonManagement"
 
 VENVS_DIR = APP_DATA_DIR / "venvs"
 
