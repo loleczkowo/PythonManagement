@@ -1,14 +1,10 @@
-import shutil
 import atexit
 import socketserver
 from api.http import WebServer
-from service import ServiceStatus
-from services import services
-from core.logs import log, INFO, QINFO, ERROR
-from core.venv_utils import venv_check
-from core.service_utils import run_service, close_all
-from config import SERVICE_LOG_DIR, API_PORT
-from globals import Globals as G
+from core.logs import log, INFO
+from core.console_input import ConsoleInput
+from config import API_PORT
+from main_functions import check_all, start_all, close_all
 
 # main system;
 
@@ -32,33 +28,16 @@ from globals import Globals as G
 
 log(INFO, "----- script is starting -----")
 atexit.register(close_all)
-
-log(INFO, "-- venv check on all services")
-for service in services:
-    log(QINFO, f"checking venv from service {service.name}")
-    venv_check(service)
-log(INFO, "-- starting all services")
-for service in services:
-    log_path = SERVICE_LOG_DIR / service.name
-    if service.log_output:
-        if not log_path.is_dir():
-            log(INFO, f"creating log dir for {service.name}")
-            log_path.mkdir(parents=True)
-    else:
-        try:
-            if log_path.is_dir():
-                log(INFO, f"removing log dir for {service.name}")
-                shutil.rmtree(log_path)
-        except Exception as e:
-            log(ERROR, f"error while removing log dir for {service.name}\n{e}")
-    log(QINFO, f"starting {service.name}")
-    G.service_status[service.name] = ServiceStatus(service, None)
-    run_service(service)
-
-
+check_all()
+start_all()
 log(INFO, "-- running the main loop")
+log(INFO, "- ConsoleInput thread start")
+console_input = ConsoleInput()
+console_input.start_thread()
+
 with socketserver.TCPServer(("127.0.0.1", API_PORT), WebServer) as httpd:
     httpd.serve_forever()
-log(INFO, "-- closing all services")
+
 close_all()
+console_input.running = False
 log(INFO, "-- goodbye")

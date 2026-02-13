@@ -8,6 +8,7 @@ VENVS_DIR = APP_DATA_DIR / "venvs"
 
 LOG_RETENTION_DAYS = 3
 LOG_DIR = APP_DATA_DIR / "logs"
+LOG_TO_CONSOLE = True
 IGNORE_API_LOGS = True  # ussaly they spam the whole logs, use for debug
 
 SERVICE_LOG_RETENTION_DAYS = 3

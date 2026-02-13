@@ -2,8 +2,9 @@ from dataclasses import dataclass
 import datetime
 from config import (LOG_DIR, LOG_RETENTION_DAYS,
                     SERVICE_LOG_DIR, SERVICE_LOG_RETENTION_DAYS,
-                    IGNORE_API_LOGS)
+                    IGNORE_API_LOGS, LOG_TO_CONSOLE)
 from service import Service
+from globals import Globals
 
 
 @dataclass
@@ -13,6 +14,7 @@ class LogType:
 
 QINFO = LogType("Qinfo")  # quiet-log.
 INFO = LogType("INFO")
+RESPONSE = LogType("RESPONSE")  # aka console commmand response
 WARNING = LogType("WARNING")
 ERROR = LogType("ERROR")
 CRITICAL = LogType("CRITICAL")
@@ -22,12 +24,14 @@ _TYPE_WIDTH = max(len(t.name) for t in [
     INFO, WARNING, ERROR, CRITICAL, SUCCESS
     ])
 _SPACE_PAD = " " * _TYPE_WIDTH
-
+IGNORE_IGNORING = [ERROR, CRITICAL, RESPONSE]
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def _plain_log(log_text: str, to_file: bool = True):
-    print(log_text)
+def _plain_log(log_text: str, log_type: LogType, to_file: bool = True):
+    if LOG_TO_CONSOLE and (log_type in IGNORE_IGNORING
+                           or not Globals.stop_logging_to_console):
+        print(log_text)
     if not to_file:
         return
     today = datetime.date.today().isoformat()
@@ -63,9 +67,9 @@ def log(log_type: LogType, message: str, to_file: bool = True, is_api=False):
     if len(lines) > 1:
         ind = f"{_SPACE_PAD}  | "
         body = "\n".join(f"{ind}{lins}" for lins in lines[1:])
-        _plain_log(f"{header}\n{body}", to_file)
+        _plain_log(f"{header}\n{body}", log_type, to_file)
     else:
-        _plain_log(header, to_file)
+        _plain_log(header, log_type, to_file)
 
 
 def service_log(service: Service, log_message: str):

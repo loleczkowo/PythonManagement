@@ -4,7 +4,7 @@ import threading
 from pathlib import Path
 from globals import Globals as G
 from service import Service
-from .logs import service_log, log, ERROR, WARNING, QINFO, INFO
+from .logs import service_log, log, ERROR, INFO
 
 
 def reader(pipe, service: Service):
@@ -88,19 +88,3 @@ def stop_service(service: Service):
     log(INFO, f"shutting down {service.name}")
     status.terminate()
     return True
-
-
-def close_all():
-    for name, service_status in G.service_status.items():
-        status = service_status.status
-        if status is None:
-            log(WARNING, f"cannot shutdown {name} because its starting")
-            continue  # starting?
-        if status is False:
-            continue  # already dead
-        if not isinstance(status, subprocess.Popen):
-            continue  # something else
-        # running
-        log(QINFO, f"shutting down {name}")
-        status.terminate()
-        service_status.status = None
