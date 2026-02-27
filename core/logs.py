@@ -53,6 +53,8 @@ def _plain_log(log_text: str, log_type: LogType, to_file: bool = True):
 def get_logs(last: int):
     today = datetime.date.today().isoformat()
     log_file = LOG_DIR / f"{today}.log"
+    if not log_file.exists():
+        return []
     with open(log_file, "r", encoding="utf-8") as f:
         lines = f.readlines()
     return lines[-int(last):]

@@ -3,7 +3,7 @@ import subprocess
 import sys
 import json
 import shutil
-from .logs import log, INFO, QINFO, SUCCESS
+from .logs import log, INFO, QINFO, SUCCESS, CRITICAL
 from service import Service
 
 
@@ -64,7 +64,12 @@ def venv_check(service: Service):
             log(QINFO, " | building new venv")
 
         base = str(venv.base_python or sys.executable)
-        subprocess.check_call([base, "-m", "venv", str(vdir)])
+        log(QINFO, f" | using base python: {base}")
+        proc = subprocess.run(
+            [base, "-m", "venv", str(vdir)], capture_output=True, text=True)
+        if proc.returncode != 0:
+            log(CRITICAL, f"Failed to build venv: {proc.stderr}")
+            raise RuntimeError(f"Failed to build venv: {proc.stderr}")
         _install_requirements(service)
         log(QINFO, f" | building new fingerprint at {str(fingerprint_file)}")
         fingerprint_file.parent.mkdir(parents=True, exist_ok=True)
