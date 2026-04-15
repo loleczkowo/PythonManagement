@@ -3,7 +3,7 @@ import subprocess
 import threading
 from pathlib import Path
 from globals import Globals as G
-from service import Service
+from service import Service, ServiceStatus
 from .logs import service_log, log, ERROR, INFO
 
 
@@ -88,3 +88,16 @@ def stop_service(service: Service):
     log(INFO, f"shutting down {service.name}")
     status.terminate()
     return True
+
+
+def service_str_status(service_status: ServiceStatus):
+    status = service_status.status
+    if status is None:
+        return "starting"
+    if status is False:
+        return "stopped"
+    if isinstance(status, subprocess.Popen):
+        if status.poll() is None:
+            return "running"
+        return "stopped"
+    return "unknown"

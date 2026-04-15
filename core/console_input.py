@@ -5,6 +5,7 @@ from .logs import log, RESPONSE, INFO, CRITICAL
 from dataclasses import dataclass
 from typing import Callable, List
 import urllib.request
+from .service_utils import service_str_status
 from main_functions import check_all, start_all, close_all
 
 
@@ -22,10 +23,11 @@ class ConsoleInput:
         self.running = True
 
         self.commands = {
-            "s": Command(None, "stops/starts log output to console"),                                           # noqa:E501
-            "help": Command(self.c_help, "prins all commands. help[command] returns rescription", None, 1),     # noqa:E501
-            "shutdown": Command(self.c_shutdown, "shutdowns everything", None, 0),                              # noqa:E501
-            "update_all": Command(self.c_update_all, "updates all services", None, 0),                          # noqa:E501
+            "s": Command(None, "stops/starts log output to console"),
+            "help": Command(self.c_help, "prins all commands. help[command] returns rescription", None, 1),
+            "shutdown": Command(self.c_shutdown, "shutdowns everything", None, 0),
+            "update_all": Command(self.c_update_all, "updates all services", None, 0),
+            "status": Command(self.c_status, "gives status of current services", None, 1),
         }
         self.using_command = ""
         self.run_to_shutdown: Callable[[]] | None = None
@@ -36,6 +38,7 @@ class ConsoleInput:
 
     def start_thread(self) -> Thread:
         self.main_input_thread.start()
+        self.c_help()  # autostart help
         return self.main_input_thread
 
     def main_input(self):
@@ -120,3 +123,14 @@ class ConsoleInput:
         check_all()
         start_all()
         self._resp("Updated all")
+
+    def c_status(self, service: str = None):
+        if service:
+            if service in Globals.service_status:
+                self._resp(f"status; {service}: {service_str_status(Globals.service_status[service])}")
+            else:
+                self._resp(f"Service '{service}' not found")
+        else:
+            self._resp("statuses;\n"+"\n".join(
+                [f"{servicename}: {service_str_status(service)}" for servicename, service in Globals.service_status.items()]
+            ))

@@ -20,5 +20,14 @@ def get_app_data_dir():
             base = Path.home() / ".local" / "share"
     return Path(base)
 
+def read_env_file(path: Path):
+    env = {}
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        key, value = line.split("=", 1)
+        env[key.strip()] = value.strip().strip("'\"")
+    return env
 
 APP_DATA_DIR = get_app_data_dir()
