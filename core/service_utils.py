@@ -30,36 +30,39 @@ def run_script(
     else:
         cmd = [str(python_path), "-u", "-m", entry, *args]
     env = dict(os.environ)
-    if env_varibles:
-        env.update(env_varibles)
+    try:
+        if env_varibles:
+            env.update(env_varibles)
 
-    service_log(service, "--- SERVICE AUTO STARTUP MESSAGE ---")
-    flags = {}
-    if os.name == "nt":
-        flags["creationflags"] = 0x08000000  # NO WINDOW
-    proc = subprocess.Popen(
-        cmd,
-        cwd=str(project_path),
-        env=env,
-        stdin=subprocess.DEVNULL,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        bufsize=0,
-        close_fds=True,
-        **flags
-    )
-    threading.Thread(
-        target=reader,
-        args=(proc.stdout, service),
-        daemon=True
-    ).start()
-    threading.Thread(
-        target=reader,
-        args=(proc.stderr, service),
-        daemon=True
-    ).start()
-    G.service_status[service.name].status = proc
-    proc.wait()
+        service_log(service, "--- SERVICE AUTO STARTUP MESSAGE ---")
+        flags = {}
+        if os.name == "nt":
+            flags["creationflags"] = 0x08000000  # NO WINDOW
+        proc = subprocess.Popen(
+            cmd,
+            cwd=str(project_path),
+            env=env,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            bufsize=0,
+            close_fds=True,
+            **flags
+        )
+        threading.Thread(
+            target=reader,
+            args=(proc.stdout, service),
+            daemon=True
+        ).start()
+        threading.Thread(
+            target=reader,
+            args=(proc.stderr, service),
+            daemon=True
+        ).start()
+        G.service_status[service.name].status = proc
+        proc.wait()
+    except Exception as e:
+        log(ERROR, f"failed to start {service.name}: {e}")
     G.service_status[service.name].status = False
 
 
